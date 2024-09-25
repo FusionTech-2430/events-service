@@ -2,6 +2,7 @@ package co.allconnected.fussiontech.eventsservice.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -13,11 +14,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "event", schema = "all_connected_events")
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_id_gen")
-    @SequenceGenerator(name = "event_id_gen", sequenceName = "event_id_event_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_event", nullable = false)
     private Integer id;
 
