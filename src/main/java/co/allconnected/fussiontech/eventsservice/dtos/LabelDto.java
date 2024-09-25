@@ -1,5 +1,8 @@
 package co.allconnected.fussiontech.eventsservice.dtos;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -8,9 +11,11 @@ import java.util.Set;
 /**
  * DTO for {@link co.allconnected.fussiontech.eventsservice.models.Label}
  */
-@Value
+@Data
+@Builder
+@AllArgsConstructor
 public class LabelDto implements Serializable {
-    Integer id;
-    String label;
-    Set<EventDto> events;
+    private Integer id;
+    private String label;
+    private Set<EventDto> events;
 }
