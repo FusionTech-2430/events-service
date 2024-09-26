@@ -9,6 +9,7 @@ import co.allconnected.fussiontech.eventsservice.models.Label;
 import co.allconnected.fussiontech.eventsservice.repositories.LabelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class LabelService {
         this.eventMapper = eventMapper;
     }
 
+    @Transactional
     // Create a new label
     public LabelDto createLabel(LabelDto labelDto) {
         Label label = labelMapper.toEntity(labelDto);
@@ -34,12 +36,14 @@ public class LabelService {
         return labelMapper.toDto(savedLabel);
     }
 
+    @Transactional
     // Get all labels
     public List<LabelDto> getAllLabels() {
         List<Label> labels = labelRepository.findAll();
         return labels.stream().map(labelMapper::toDto).collect(Collectors.toList());
     }
 
+    @Transactional
     // Get a label by ID
     public LabelDto getLabelById(Integer id) {
         Label label = labelRepository.findById(id)
@@ -47,6 +51,7 @@ public class LabelService {
         return labelMapper.toDto(label);
     }
 
+    @Transactional
     // Update an existing label
     public LabelDto put(Integer id, LabelDto labelDto) {
         Label existingLabel = labelRepository.findById(id)
@@ -62,6 +67,7 @@ public class LabelService {
         return labelMapper.toDto(updatedLabel);
     }
 
+    @Transactional
     // Delete a label
     public void deleteLabel(Integer id) {
         Label label = labelRepository.findById(id)

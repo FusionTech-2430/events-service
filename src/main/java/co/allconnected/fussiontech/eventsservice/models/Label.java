@@ -13,8 +13,7 @@ import java.util.Set;
 @Table(name = "label", schema = "all_connected_events")
 public class Label {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "label_id_gen")
-    @SequenceGenerator(name = "label_id_gen", sequenceName = "label_id_label_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_label", nullable = false)
     private Integer id;
 

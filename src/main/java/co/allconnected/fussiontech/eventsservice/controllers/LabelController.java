@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/labels")
+@RequestMapping("/api/v0/labels")
 public class LabelController {
 
     private final LabelService labelService;
@@ -44,7 +44,7 @@ public class LabelController {
     // Update the label by ID
     @PutMapping("/{id_label}")
     public ResponseEntity<LabelDto> updateLabel(@PathVariable Integer id_label, @RequestBody LabelDto labelDto) {
-        LabelDto updatedLabel = labelService.createLabel(labelDto);
+        LabelDto updatedLabel = labelService.put(id_label, labelDto);
         return new ResponseEntity<>(updatedLabel, HttpStatus.OK);
     }
 

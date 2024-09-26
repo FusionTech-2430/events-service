@@ -39,7 +39,9 @@ public class EventController {
 
     // Create a new event
     @PostMapping
-    public ResponseEntity<?> createEvent(@ModelAttribute EventCreateDto eventDto, @RequestParam(value = "photo", required = false) MultipartFile photo) {
+    public ResponseEntity<?> createEvent(
+            @ModelAttribute EventCreateDto eventDto,
+            @RequestParam(value = "photo", required = false) MultipartFile photo) {
         try {
             EventDto newEvent = eventService.createEvent(eventDto, photo);
             return new ResponseEntity<>(newEvent, HttpStatus.CREATED);
@@ -52,8 +54,11 @@ public class EventController {
 
     // Update an event
     @PutMapping("/{id_event}")
-    public ResponseEntity<EventDto> updateEvent(@PathVariable("id_event") Integer id, @RequestBody EventDto eventDto) {
-        EventDto updatedEvent = eventService.updateEvent(id, eventDto);
+    public ResponseEntity<EventDto> updateEvent(
+            @PathVariable("id_event") Integer id,
+            @RequestBody EventDto eventDto,
+            @RequestParam MultipartFile photo) {
+        EventDto updatedEvent = eventService.updateEvent(id, eventDto, photo);
         return new ResponseEntity<>(updatedEvent, HttpStatus.OK);
     }
 

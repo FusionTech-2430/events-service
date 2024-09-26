@@ -12,6 +12,7 @@ import co.allconnected.fussiontech.eventsservice.utils.OperationException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class EventService {
         this.eventCreateMapper = eventCreateMapper;
     }
 
+    @Transactional
     // Create an event
     public EventDto createEvent(EventCreateDto crateEventDto, MultipartFile photo) {
         Event event = eventCreateMapper.toEntity(crateEventDto);
@@ -48,21 +50,13 @@ public class EventService {
         Event savedEvent = eventRepository.save(event);
 
         // Upload photo to firebase
-        if (photo != null) {
-            String photoName = String.valueOf(savedEvent.getId());
-            String extension = FilenameUtils.getExtension(photo.getOriginalFilename());
-            try{
-                savedEvent.setPhotoUrl(firebaseService.uploadImg(photoName, extension, photo));
-
-            } catch (IOException e) {
-                throw new OperationException(500, "Error uploading photo: " + e.getMessage());
-            }
-        }
+        SetPhoto(photo, savedEvent);
 
         savedEvent = eventRepository.save(event);
         return eventMapper.toDto(savedEvent);
     }
 
+    @Transactional
     // Get event by id
     public EventDto getEventById(Integer id) {
         Event event = eventRepository.findById(id)
@@ -70,6 +64,7 @@ public class EventService {
         return eventMapper.toDto(event);
     }
 
+    @Transactional
     // Get all events
     public List<EventDto> getAllEvents() {
         List<Event> events = eventRepository.findAll();
@@ -77,25 +72,33 @@ public class EventService {
     }
 
     // Update an event
-    public EventDto updateEvent(Integer id, EventDto eventDto) {
+    @Transactional
+    public EventDto updateEvent(Integer id, EventDto eventDto, MultipartFile photo) {
         Event existingEvent = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
 
         // Update fields
         existingEvent.setName(eventDto.getName());
         existingEvent.setDescription(eventDto.getDescription());
-        existingEvent.setPhotoUrl(eventDto.getPhotoUrl());
         existingEvent.setCapacity(eventDto.getCapacity());
         existingEvent.setDate(eventDto.getDate());
         existingEvent.setActive(eventDto.getActive());
         existingEvent.setPrice(eventDto.getPrice());
-        existingEvent.setLabels(eventDto.getLabels());
-        existingEvent.setEventParticipants(eventDto.getEventParticipants());
+
+        // Add labels to event
+        existingEvent.setLabels(eventDto.getLabels().stream()
+                .map(labelDto -> labelRepository.findById(labelDto.getId())
+                        .orElseThrow(() -> new RuntimeException("Label not found with id: " + labelDto.getId())))
+                .collect(Collectors.toSet()));
+
+        // Upload photo to firebase
+        SetPhoto(photo, existingEvent);
 
         Event updatedEvent = eventRepository.save(existingEvent);
         return eventMapper.toDto(updatedEvent);
     }
 
+    @Transactional
     // Delete an event
     public void deleteEvent(Integer id) {
         Event event = eventRepository.findById(id)
@@ -103,6 +106,7 @@ public class EventService {
         eventRepository.delete(event);
     }
 
+    @Transactional
     // Add a label to an event
     public EventDto addLabelToEvent(Integer eventId, Integer labelId) {
         Event event = eventRepository.findById(eventId)
@@ -117,6 +121,7 @@ public class EventService {
         return eventMapper.toDto(updatedEvent);
     }
 
+    @Transactional
     // Remove a label from an event
     public void removeLabelFromEvent(Integer eventId, Integer labelId) {
         Event event = eventRepository.findById(eventId)
@@ -128,5 +133,17 @@ public class EventService {
         event.getLabels().remove(label);
 
         eventRepository.save(event);
+    }
+
+    private void SetPhoto(MultipartFile photo, Event existingEvent) {
+        if (photo != null) {
+            String photoName = String.valueOf(existingEvent.getId());
+            String extension = FilenameUtils.getExtension(photo.getOriginalFilename());
+            try{
+                existingEvent.setPhotoUrl(firebaseService.uploadImg(photoName, extension, photo));
+            } catch (IOException e) {
+                throw new OperationException(500, "Error uploading photo: " + e.getMessage());
+            }
+        }
     }
 }
