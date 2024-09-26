@@ -50,10 +50,10 @@ public class Event {
     @ManyToMany
     @JoinTable(name = "event_label",
             joinColumns = @JoinColumn(name = "id_event"),
-            inverseJoinColumns = @JoinColumn(name = "id_label"))
+            inverseJoinColumns = @JoinColumn(name = "id_label"),
+            schema = "all_connected_events")
     private Set<Label> labels = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "idEvent")
+    @OneToMany(mappedBy = "idEvent" ,cascade = CascadeType.ALL)
     private Set<EventParticipant> eventParticipants = new LinkedHashSet<>();
-
 }
